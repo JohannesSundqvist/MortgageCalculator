@@ -17,18 +17,14 @@ import java.util.List;
  * @author Xariez
  */
 public class Main {
-    public List<Customer> customers;
-    
-    public Main() {
-        this.customers = new ArrayList<Customer>();
-    }
-    
     public static void main(String[] args) {
         new Main().doRead();
     }
     
     public void doRead() {
         try {
+            List<Customer> customers = new ArrayList<Customer>();
+            
             String path = System.getProperty("user.dir") + "/src/main/java/prospects.txt";
             BufferedReader reader = new BufferedReader(new FileReader(path));
             String str = null;
@@ -50,7 +46,7 @@ public class Main {
                 }
             }
             
-            doPrint();
+            doPrint(customers);
         }
         catch(Exception ex) {
             System.out.println(ex.getMessage());
@@ -65,9 +61,14 @@ public class Main {
         return result;
     }
     
-    public void doPrint() {
+    public void doPrint(List<Customer> customers) {
         try {
             for(Customer item : customers) {
+                if(item.getTotalLoan() < 0 || item.getInterest() < 0 || item.getYears() < 0) {
+                    System.out.println("One or more values for " + item.getName() + " are less than 0 and cannot be processed. Continuing to next customer.");
+                    continue;
+                }                  
+                
                 int numOfPayments = item.getYears() * 12;
                 double calcInterest = item.getInterest() / (12 * 100);
                 double formula = item.getTotalLoan() * (calcInterest * getPower((1 + calcInterest), numOfPayments)) / (getPower(1 + calcInterest, numOfPayments) - 1);
